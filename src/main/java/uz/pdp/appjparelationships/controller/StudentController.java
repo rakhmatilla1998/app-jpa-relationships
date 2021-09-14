@@ -108,4 +108,52 @@ public class StudentController {
 
         return "Student is added";
     }
+
+    @DeleteMapping(value = "/{id}")
+    public String deleteStudent(@PathVariable Integer id) {
+        try {
+            studentRepository.deleteById(id);
+            return "Student is deleted";
+        } catch (Exception e) {
+            return "Student is not deleted";
+        }
+    }
+
+    @PutMapping(value = "/{id}")
+    public String editStudent(@PathVariable Integer id, @RequestBody StudentDto dto) {
+        Optional<Address> optionalAddress =
+                addressRepository.findById(dto.getAddressId());
+        if (!optionalAddress.isPresent()) {
+            return "Address is not found";
+        }
+
+        Optional<Group> optionalGroup =
+                groupRepository.findById(dto.getGroupId());
+        if (!optionalGroup.isPresent()) {
+            return "Group is not found";
+        }
+
+        Optional<Subject> optionalSubject =
+                subjectRepository.findById(dto.getSubjectId());
+        if (!optionalSubject.isPresent()) {
+            return "Subject is not found";
+        }
+
+        Optional<Student> optionalStudent = studentRepository.findById(id);
+        if (!optionalStudent.isPresent()) {
+            return "Student not found";
+        }
+
+        Student student = optionalStudent.get();
+        student.setFirstName(dto.getFirstName());
+        student.setLastName(dto.getLastName());
+        student.setGroup(optionalGroup.get());
+        student.setAddress(optionalAddress.get());
+        student.getSubjects().add(optionalSubject.get());
+
+        studentRepository.save(student);
+
+        return "Student is edited";
+    }
 }
+
